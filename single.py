@@ -15,9 +15,6 @@ def write_output(output_df, filepath):
 
 
 def init_constraints():
-    gpu_memory = {}
-    gpu_completion_time = {}
-
     for i in range(num_gpus):
         gpus[i]['memory-left'] = gpu_fixed_memory
         gpus[i]['completion-time'] = 0
