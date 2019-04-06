@@ -37,6 +37,7 @@ def init_simulation(input_df, output):
         print(len(jobs_df))
         # filter jobs according to arrival time
         current_job_queue_df = jobs_df[jobs_df['arrival-time'] <= current_time]
+        current_job_queue_df.sort_values(by=['expected-time-to-completion'])
         # print('current time: ' + str(current_time))
         # print('jobs left: ' + str(len(jobs_df.index)))
         # print('current_job_queue_df' + str(len(current_job_queue_df)))
