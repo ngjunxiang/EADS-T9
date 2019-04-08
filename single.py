@@ -34,7 +34,7 @@ def init_simulation(input_df, output):
     
     current_time = 0
     while (len(jobs_df.index) > 0):
-        print(len(jobs_df))
+        # print(len(jobs_df))
         # filter jobs according to arrival time
         current_job_queue_df = jobs_df[jobs_df['arrival-time'] <= current_time]
         current_job_queue_df.sort_values(by=['expected-time-to-completion'])
@@ -186,6 +186,8 @@ def calculate_concurrent_completion_time(ongoing_jobs, current_time, gpu_id, gpu
             #       1 - num_of_jobs_removed)
             # print(current_time)
             # get the current k value
+            if (gpu_details['number-of-current-jobs'] < num_of_jobs_removed):
+                num_of_jobs_removed = gpu_details['number-of-current-jobs']
             k = penalty[gpu_details['number-of-current-jobs'] + 1 - num_of_jobs_removed]
 
             # calculate the additional time taken for the current job
@@ -219,7 +221,7 @@ output = pd.DataFrame(columns=['userid', 'expected-time-to-completion',
 gpus = {}
 
 # inputs
-input_df = load_input('./input/single.csv')
+input_df = load_input('./input/test.csv')
 num_gpus = 5
 gpu_fixed_memory = 1000
 
