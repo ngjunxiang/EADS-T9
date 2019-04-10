@@ -37,11 +37,11 @@ def init_simulation(input_df, output):
     while (len(jobs_df.index) > 0):
         # print(len(jobs_df))
         # filter jobs according to arrival time
-        start_time = time.time()
 
         current_job_queue_df = jobs_df[jobs_df['arrival-time'] <= current_time]
         current_job_queue_df.sort_values(by=['expected-time-to-completion'])
 
+        print('job_df: ', jobs_df.shape[0])
         # print('current time: ' + str(current_time))
         # print('jobs left: ' + str(len(jobs_df.index)))
         # print('*******************************************next job ***************************************************')
@@ -113,8 +113,8 @@ def init_simulation(input_df, output):
                     # print('selected_gpu_changed_times: ', selected_gpu_changed_times)
                     # update completion time for all affected jobs
                     for jobid, new_completion_time in selected_gpu_changed_times:
-                        print('jobid: ', jobid)
-                        print('new completion time: ', new_completion_time)
+                        # print('jobid: ', jobid)
+                        # print('new completion time: ', new_completion_time)
                         # is it > ? if end right now, will not affect right
                         # print(job[1])
                     #     if job[1]['gpu-assigned'] == gpu_to_assign and job[1]['completion-time'] > current_time:
@@ -133,14 +133,17 @@ def init_simulation(input_df, output):
                     # find completed jobs and free up GPU
                 # elapsed_time = time.time() - start_time
                 # print('elapsed time 3: ', elapsed_time)
-        if (len(output) > 0):
-            for assigned_job in output.iterrows():
-                if assigned_job[1]['completion-time'] == current_time:
+        start_time = time.time()
+        all_completed_job_at_current_time = output[output['completion-time'] == current_time]
+        if (all_completed_job_at_current_time.shape[0] > 0):
+            print('all_completed_job_at_current_time: ', all_completed_job_at_current_time.shape[0])
+            for assigned_job in all_completed_job_at_current_time.iterrows():
+                # if assigned_job[1]['completion-time'] == current_time:
                     # add memory back to gpu
-                    gpus[assigned_job[1]['gpu-assigned']
-                            ]['number-of-current-jobs'] -= 1
-                    gpus[assigned_job[1]['gpu-assigned']
-                            ]['memory-taken'] -= assigned_job[1]['memory']
+                gpus[assigned_job[1]['gpu-assigned']
+                        ]['number-of-current-jobs'] -= 1
+                gpus[assigned_job[1]['gpu-assigned']
+                        ]['memory-taken'] -= assigned_job[1]['memory']
         current_time += 1
         print('Current Time: ' + str(current_time))
         elapsed_time = time.time() - start_time
