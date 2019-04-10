@@ -42,11 +42,9 @@ def init_simulation(input_df, output):
         current_job_queue_df = jobs_df[jobs_df['arrival-time'] <= current_time]
         current_job_queue_df.sort_values(by=['expected-time-to-completion'])
 
-        elapsed_time = time.time() - start_time
-        print('elapsed time 1: ', elapsed_time)
         # print('current time: ' + str(current_time))
         # print('jobs left: ' + str(len(jobs_df.index)))
-        print('*******************************************next job ***************************************************')
+        # print('*******************************************next job ***************************************************')
         # print('current_job_queue_df: ' + str(current_job_queue_df.shape[0]))
                             
         if len(current_job_queue_df) > 0:
@@ -57,9 +55,9 @@ def init_simulation(input_df, output):
                 selected_gpu_changed_times = []
                 # print('******************************* job id: ', str(job[1]['jobid']), '***************************************')
                 # print('expected-time-to-completion: ', job[1]['expected-time-to-completion'])
-                start_time = time.time()
+                # start_time = time.time()
                 for gpu_id in range(num_gpus):
-                    print('************************************* gpu ' + str(gpu_id) + ' **************************************************************')
+                    # print('************************************* gpu ' + str(gpu_id) + ' **************************************************************')
                     if gpus[gpu_id]['memory-taken'] + job[1]['memory'] <= gpu_fixed_memory:
                         if gpus[gpu_id]['number-of-current-jobs'] == 0:
                             gpu_to_assign = gpu_id
@@ -71,8 +69,8 @@ def init_simulation(input_df, output):
                                 current_time, gpus[gpu_id], job)
                             new_completion_times, concurrent_completion_time = calculate_concurrent_completion_time(
                                 output, current_time, gpu_id, gpus[gpu_id], job)
-                            print('consecutive ' + str(consecutive_completion_time))
-                            print('concurrent ' + str(concurrent_completion_time))
+                            # print('consecutive ' + str(consecutive_completion_time))
+                            # print('concurrent ' + str(concurrent_completion_time))
 
                             # if gpu_id == 0 and concurrent_completion_time <= consecutive_completion_time:
                             #     shortest_completion_time = concurrent_completion_time
@@ -94,10 +92,10 @@ def init_simulation(input_df, output):
                             #     shortest_completion_time = consecutive_completion_time
                             #     gpu_to_assign = -1
                 # print('gpu to assign: ' + str(gpu_to_assign))
-                elapsed_time = time.time() - start_time
-                print('elapsed time 2: ', elapsed_time)
+                # elapsed_time = time.time() - start_time
+                # print('elapsed time 2: ', elapsed_time)
 
-                start_time = time.time()
+                # start_time = time.time()
                 if gpu_to_assign != -1:
                     # deduct memory from gpu
                     gpus[gpu_to_assign]['memory-taken'] += job[1]['memory']
@@ -133,8 +131,8 @@ def init_simulation(input_df, output):
                     # jobs_df = jobs_df.drop([job[1]['jobid']])
                     # total_size = len(jobs_df.index)  # remaining jobs in total
                     # find completed jobs and free up GPU
-                elapsed_time = time.time() - start_time
-                print('elapsed time 3: ', elapsed_time)
+                # elapsed_time = time.time() - start_time
+                # print('elapsed time 3: ', elapsed_time)
         if (len(output) > 0):
             for assigned_job in output.iterrows():
                 if assigned_job[1]['completion-time'] == current_time:
@@ -145,6 +143,8 @@ def init_simulation(input_df, output):
                             ]['memory-taken'] -= assigned_job[1]['memory']
         current_time += 1
         print('Current Time: ' + str(current_time))
+        elapsed_time = time.time() - start_time
+        print('total elapsed time: ', elapsed_time)
     return output
 
 
@@ -182,7 +182,7 @@ def calculate_concurrent_completion_time(ongoing_jobs, current_time, gpu_id, gpu
         shortest_job_end_time = 0
         first_time = True
 
-        start_time = time.time()
+        # start_time = time.time()
         if len(ongoing_jobs_in_current_gpu) > 0:
             # print('entered ongoing jobs if bracket')
             # for curr_gpu_job in ongoing_jobs_in_current_gpu.iterrows():
@@ -276,8 +276,8 @@ def calculate_concurrent_completion_time(ongoing_jobs, current_time, gpu_id, gpu
     # print('new completion times: ', new_completion_times)
     # print('concurrent test:')
     # print(job_completion_time)
-    elapsed_time = time.time() - start_time
-    print('elapsed time 4: ', elapsed_time)
+    # elapsed_time = time.time() - start_time
+    # print('elapsed time 4: ', elapsed_time)
     return new_completion_times, job_completion_time
 
 def recalculate_completion_time(num_jobs_in_gpu, current_time, current_completion_time):
