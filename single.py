@@ -1,6 +1,7 @@
 import pandas as pd
 import sys
 import time
+import math
 
 # methods
 
@@ -74,8 +75,8 @@ def init_simulation(input_df, output):
                                 break
                             else:
                                 # calculate completion time
-                                consecutive_completion_time = calculate_consecutive_completion_time(
-                                    output, current_time, gpu_id, gpus[gpu_id], job)
+                                # consecutive_completion_time = calculate_consecutive_completion_time(
+                                #     output, current_time, gpu_id, gpus[gpu_id], job)
                                 new_completion_times, concurrent_completion_time = calculate_concurrent_completion_time(
                                     output, current_time, gpu_id, gpus[gpu_id], job)
                                 # print('consecutive ' + str(consecutive_completion_time))
@@ -98,11 +99,12 @@ def init_simulation(input_df, output):
                             if gpus[gpu_id]['number-of-current-jobs'] == 0:
                                 gpu_to_assign = gpu_id
                                 shortest_completion_time = current_time + job[1]['expected-time-to-completion']
+                                selected_gpu_changed_times = []
                                 break
                             else:
                                 # calculate completion time
-                                consecutive_completion_time = calculate_consecutive_completion_time(
-                                    output, current_time, gpu_id, gpus[gpu_id], job)
+                                # consecutive_completion_time = calculate_consecutive_completion_time(
+                                #     output, current_time, gpu_id, gpus[gpu_id], job)
                                 new_completion_times, concurrent_completion_time = calculate_concurrent_completion_time(
                                     output, current_time, gpu_id, gpus[gpu_id], job)
                                 # print('consecutive ' + str(consecutive_completion_time))
@@ -188,7 +190,7 @@ def calculate_consecutive_completion_time(ongoing_jobs, current_time,gpu_id, gpu
 
 
 def calculate_concurrent_completion_time(ongoing_jobs, current_time, gpu_id, gpu_details, job):
-    penalty = {1: 1, 2: 3, 3: 4, 4: 8, 5: 16}
+    penalty = {1: 1, 2: 2, 3: 4, 4: 8, 5: 16}
     # k = penalty[gpu_details['number-of-current-jobs'] + 1]
     # print('gpu id: ' + str(gpu_id))
     new_completion_times = []
@@ -223,13 +225,13 @@ def calculate_concurrent_completion_time(ongoing_jobs, current_time, gpu_id, gpu
             # get the time left for the next shortest completion time
             time_left_for_curr_k_value = shortest_job_end_time - current_time
 
-            leftover_time = 0
+            # leftover_time = 0
             # print('job_completion_time: ', job_completion_time)
             # print('shortest_job_end_time: ', shortest_job_end_time)
             # check if time left for the shortest completion time is longer than the time left to complete the current job and if there are any other jobs left
             if job_completion_time < shortest_job_end_time:
                 time_left_for_curr_k_value = job_completion_time - current_time
-                leftover_time = shortest_job_end_time - job_completion_time
+                # leftover_time = shortest_job_end_time - job_completion_time
                 shortest_job_end_time = job_completion_time
             
             # print('leftover_time: ', leftover_time)
@@ -252,16 +254,19 @@ def calculate_concurrent_completion_time(ongoing_jobs, current_time, gpu_id, gpu
             # print('Penalty: ' + str(k))
             # print('Previous penalty: ' + str(previous_k_penalty))
 
+            indexes = list(ongoing_jobs_in_current_gpu.index.values)
+            # print(ongoing_jobs_in_current_gpu)
+            # print('memory: ', str(curr_job_in_gpu['memory']))
+
             # calculate the time period affected for all jobs with the new k value
-            new_additional_time = time_left_for_curr_k_value / previous_k_penalty * k
+            new_additional_time = math.ceil(time_left_for_curr_k_value / previous_k_penalty * k + (job[1]['memory'] + curr_job_in_gpu['memory']) * 0.01)
 
             # new end time for current job
-            new_shortest_job_end_time = shortest_job_end_time - time_left_for_curr_k_value + new_additional_time + leftover_time
+            new_shortest_job_end_time = shortest_job_end_time - time_left_for_curr_k_value + new_additional_time
 
             # print('new_shortest_job_end_time: ' + str(new_shortest_job_end_time))
             # adding ended job with new end times to a list
             # new_completion_times.append((curr_job_in_gpu, new_shortest_job_end_time))
-            indexes = list(ongoing_jobs_in_current_gpu.index.values)
             # print('length of dataframe: ', len(indexes))
             num_dropped_indexes = 0
             # print(ongoing_jobs_in_current_gpu)
