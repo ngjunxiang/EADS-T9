@@ -188,7 +188,7 @@ def calculate_consecutive_completion_time(ongoing_jobs, current_time,gpu_id, gpu
 
 
 def calculate_concurrent_completion_time(ongoing_jobs, current_time, gpu_id, gpu_details, job):
-    penalty = {1: 1, 2: 2, 3: 4, 4: 8, 5: 16}
+    penalty = {1: 1, 2: 3, 3: 4, 4: 8, 5: 16}
     # k = penalty[gpu_details['number-of-current-jobs'] + 1]
     # print('gpu id: ' + str(gpu_id))
     new_completion_times = []
