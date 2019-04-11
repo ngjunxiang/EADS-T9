@@ -65,11 +65,12 @@ def init_simulation(input_df, output):
                     for gpu_id in range(num_gpus):
                         # print('************************************* gpu ' + str(gpu_id) + ' **************************************************************')
                         ongoing_jobs_in_current_gpu = gpus[gpu_id]['number-of-current-jobs']
-                        # print('num_jobs_in_gpu: ', ongoing_jobs_in_current_gpu.shape[0])
+                        # print('num_jobs_in_gpu: ', ongoing_jobs_in_current_gpu)
                         if gpus[gpu_id]['memory-taken'] + job[1]['memory'] <= gpu_fixed_memory and ongoing_jobs_in_current_gpu < 2:
                             if gpus[gpu_id]['number-of-current-jobs'] == 0:
                                 gpu_to_assign = gpu_id
                                 shortest_completion_time = current_time + job[1]['expected-time-to-completion']
+                                selected_gpu_changed_times = []
                                 break
                             else:
                                 # calculate completion time
@@ -164,6 +165,8 @@ def init_simulation(input_df, output):
                 gpus[assigned_job[1]['gpu-assigned']
                         ]['memory-taken'] -= assigned_job[1]['memory']
         current_time += 1
+        # print('output: ')
+        # print(output)
         print('Current Time: ' + str(current_time))
     elapsed_time = time.time() - start_time
     print('elapsed time: ', elapsed_time)
@@ -201,14 +204,14 @@ def calculate_concurrent_completion_time(ongoing_jobs, current_time, gpu_id, gpu
     ongoing_jobs_in_current_gpu = ongoing_jobs_in_current_gpu[ongoing_jobs_in_current_gpu['completion-time'] >= current_time]
     ongoing_jobs_in_current_gpu = ongoing_jobs_in_current_gpu.sort_values(by=['completion-time'])
     
-    if ongoing_jobs_in_current_gpu.shape[0] == 5:
-        return new_completion_times, 99999999999999999999999999999999999999
+    # if ongoing_jobs_in_current_gpu.shape[0] == 5:
+    #     return new_completion_times, 99999999999999999999999999999999999999
     # print(ongoing_jobs_in_current_gpu)
     # print('gpu id: ' + str(gpu_id))
     # print(ongoing_jobs_in_current_gpu.shape[0])
     # start_time = time.time()
     while job_not_completed:
-
+        # print('curr time before: ', str(current_time))
         shortest_job_end_time = 0
 
         # start_time = time.time()
@@ -218,7 +221,7 @@ def calculate_concurrent_completion_time(ongoing_jobs, current_time, gpu_id, gpu
             shortest_job_end_time = curr_job_in_gpu['completion-time']
             
             # get the time left for the next shortest completion time
-            time_left_for_curr_k_value = shortest_job_end_time - current_time + 1
+            time_left_for_curr_k_value = shortest_job_end_time - current_time
 
             leftover_time = 0
             # print('job_completion_time: ', job_completion_time)
@@ -261,10 +264,10 @@ def calculate_concurrent_completion_time(ongoing_jobs, current_time, gpu_id, gpu
             indexes = list(ongoing_jobs_in_current_gpu.index.values)
             # print('length of dataframe: ', len(indexes))
             num_dropped_indexes = 0
+            # print(ongoing_jobs_in_current_gpu)
             # adding new times for all gpu and removing the shortest job/jobs with the same end time as the current shortest jobs
             for index in range(len(indexes)):
                 # print(index)
-                # print(ongoing_jobs_in_current_gpu)
                 curr_time_taken = ongoing_jobs_in_current_gpu['completion-time'].iloc[index - num_dropped_indexes]
                 # print(curr_time_taken)
                 new_time_taken = curr_time_taken - time_left_for_curr_k_value + new_additional_time
@@ -283,7 +286,7 @@ def calculate_concurrent_completion_time(ongoing_jobs, current_time, gpu_id, gpu
             job_completion_time = job_completion_time - time_left_for_curr_k_value + new_additional_time
 
             current_time = new_shortest_job_end_time
-
+            # print('curr time after: ', str(current_time))
             # condition for stopping the while loop
             if job_completion_time <= current_time:
                 job_not_completed = False
