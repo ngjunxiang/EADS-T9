@@ -1,0 +1,21 @@
+no. jobs	= 10000
+Overall stats. (all priorities)
+avg wait	= 13627.743
+max wait	= 50088.0
+sd wait 	= 11860.49517189413
+
+Priority 1
+avg wait	= 13596.241532976826
+max wait	= 48681.0
+sd wait 	= 11876.035953818939
+
+Priority 2
+avg wait	= 13203.18850920015
+max wait	= 50088.0
+sd wait 	= 11721.978963500324
+
+Priority 3
+avg wait	= 17482.760404949382
+max wait	= 49403.0
+sd wait 	= 12385.718383801757
+
