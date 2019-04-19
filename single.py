@@ -92,7 +92,7 @@ def init_simulation(input_df, output):
                                 #     gpu_to_assign = gpu_id
                                     # print('assigned to ', gpu_to_assign)
                 else:
-                    for gpu_id in range(2):
+                    for gpu_id in range(4):
                         ongoing_jobs_in_current_gpu = gpus[gpu_id]['number-of-current-jobs']
                         if gpus[gpu_id]['memory-taken'] + job[1]['memory'] <= gpu_fixed_memory and ongoing_jobs_in_current_gpu < 2:
                             if gpus[gpu_id]['number-of-current-jobs'] == 0:
@@ -320,7 +320,7 @@ gpus = {}
 
 # inputs
 input_df = load_input('./competition-2019/mixed.csv')
-num_gpus = 5
+num_gpus = 6
 gpu_fixed_memory = 1000
 
 # main
